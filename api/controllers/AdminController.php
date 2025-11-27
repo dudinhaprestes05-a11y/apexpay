@@ -7,13 +7,21 @@ require_once __DIR__ . '/../models/PaymentAcquirer.php';
 class AdminController {
     public function dashboard(Request $request, Response $response) {
         try {
+            error_log('Dashboard: Getting total sellers');
             $totalSellers = User::count(['role' => 'seller']);
+
+            error_log('Dashboard: Getting pending KYC');
             $pendingKYC = User::count(['kyc_status' => 'pending']);
 
+            error_log('Dashboard: Getting total transactions');
             $totalTransactions = Transaction::count();
+
+            error_log('Dashboard: Getting total volume');
             $totalVolume = Transaction::getTotalVolume();
 
+            error_log('Dashboard: Getting paid count');
             $paidCount = Transaction::count(['status' => 'paid']);
+
             $successRate = $totalTransactions > 0
                 ? round(($paidCount / $totalTransactions) * 100, 2)
                 : 0;
@@ -26,10 +34,12 @@ class AdminController {
                 'success_rate' => $successRate
             ];
 
+            error_log('Dashboard: Returning stats');
             $response->success($stats)->send();
 
         } catch (Exception $e) {
             error_log('Admin dashboard error: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
             return $response->serverError()->send();
         }
     }
