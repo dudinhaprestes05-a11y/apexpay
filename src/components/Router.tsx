@@ -1,56 +1,26 @@
-import { ReactNode, createContext, useContext, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { Login } from '../pages/Login';
+import { AdminDashboard } from '../pages/AdminDashboard';
+import { SellerDashboard } from '../pages/SellerDashboard';
 
-interface RouterContextType {
-  currentPath: string;
-  navigate: (path: string) => void;
-}
+export function Router() {
+  const { user, loading } = useAuth();
 
-const RouterContext = createContext<RouterContextType | undefined>(undefined);
-
-export function RouterProvider({ children }: { children: ReactNode }) {
-  const [currentPath, setCurrentPath] = useState('/');
-
-  const navigate = (path: string) => {
-    setCurrentPath(path);
-  };
-
-  return (
-    <RouterContext.Provider value={{ currentPath, navigate }}>
-      {children}
-    </RouterContext.Provider>
-  );
-}
-
-export function useRouter() {
-  const context = useContext(RouterContext);
-  if (!context) {
-    throw new Error('useRouter must be used within RouterProvider');
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Carregando...</div>
+      </div>
+    );
   }
-  return context;
-}
 
-interface RouteProps {
-  path: string;
-  component: ReactNode;
-}
+  if (!user) {
+    return <Login />;
+  }
 
-export function Route({ path, component }: RouteProps) {
-  const { currentPath } = useRouter();
-  return currentPath === path ? <>{component}</> : null;
-}
+  if (user.role === 'admin') {
+    return <AdminDashboard />;
+  }
 
-interface LinkProps {
-  to: string;
-  children: ReactNode;
-  className?: string;
-}
-
-export function Link({ to, children, className = '' }: LinkProps) {
-  const { navigate } = useRouter();
-
-  return (
-    <button onClick={() => navigate(to)} className={className}>
-      {children}
-    </button>
-  );
+  return <SellerDashboard />;
 }
