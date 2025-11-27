@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -9,21 +9,24 @@ export interface ApiResponse<T = any> {
 
 class ApiClient {
   private baseURL: string;
+  private token: string | null = null;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
-  }
-
-  private getToken(): string | null {
-    return localStorage.getItem('auth_token');
+    this.token = localStorage.getItem('auth_token');
   }
 
   setToken(token: string | null): void {
+    this.token = token;
     if (token) {
       localStorage.setItem('auth_token', token);
     } else {
       localStorage.removeItem('auth_token');
     }
+  }
+
+  getToken(): string | null {
+    return this.token || localStorage.getItem('auth_token');
   }
 
   private async request<T = any>(
@@ -41,14 +44,13 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    if (options.headers) {
-      Object.assign(headers, options.headers);
-    }
-
     try {
       const response = await fetch(url, {
         ...options,
-        headers,
+        headers: {
+          ...headers,
+          ...(options.headers as Record<string, string>),
+        },
       });
 
       const data = await response.json();
@@ -100,9 +102,9 @@ class ApiClient {
 
   async upload<T = any>(endpoint: string, formData: FormData): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-
-    const headers: HeadersInit = {};
     const token = this.getToken();
+
+    const headers: Record<string, string> = {};
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
