@@ -5,12 +5,12 @@ Gateway de pagamentos com integração PodPay, painéis Admin e Seller.
 ## Estrutura do Projeto
 
 ```
-/
+/ (raiz = httpdocs no Plesk)
 ├── src/              # Frontend React + TypeScript
-├── httpdocs/         # Raiz pública (gerado pelo build)
-│   ├── index.html    # SPA compilado
-│   ├── assets/       # CSS/JS compilados
-│   └── api/          # Backend PHP
+├── index.html        # SPA compilado (gerado)
+├── assets/           # CSS/JS compilados (gerado)
+├── api/              # Backend PHP
+├── .htaccess         # Routing SPA + API
 └── deploy.sh         # Script de deploy
 ```
 
@@ -24,7 +24,7 @@ npm install
 npm run dev
 
 # Backend (outro terminal)
-cd httpdocs/api
+cd api
 php -S localhost:8000 -t .
 ```
 
@@ -45,7 +45,7 @@ apt install -y nodejs
 
 ### Configuração Backend
 
-Edite `httpdocs/api/.env`:
+Edite `api/.env`:
 
 ```env
 DB_HOST=localhost
@@ -62,7 +62,7 @@ JWT_SECRET=gerar_com_openssl_rand_base64_32
 ### Migração e Admin
 
 ```bash
-cd httpdocs/api
+cd api
 php migrate.php
 php create-admin.php admin@email.com senha123
 ```
