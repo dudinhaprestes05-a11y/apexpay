@@ -36,21 +36,33 @@ class Request {
             $headers['CONTENT-TYPE'] = $_SERVER['CONTENT_TYPE'];
         }
 
+        if (isset($_SERVER['HTTP_CONTENT_TYPE'])) {
+            $headers['CONTENT-TYPE'] = $_SERVER['HTTP_CONTENT_TYPE'];
+        }
+
         return $headers;
     }
 
     private function parseBody() {
         $contentType = $this->header('CONTENT-TYPE') ?? '';
 
+        error_log('Content-Type header: ' . $contentType);
+        error_log('All headers: ' . json_encode($this->headers));
+
         if (strpos($contentType, 'application/json') !== false) {
             $json = file_get_contents('php://input');
-            return json_decode($json, true) ?? [];
+            error_log('Raw JSON input: ' . $json);
+            $decoded = json_decode($json, true) ?? [];
+            error_log('Decoded JSON: ' . json_encode($decoded));
+            return $decoded;
         }
 
         if ($this->method === 'POST' || $this->method === 'PUT' || $this->method === 'PATCH') {
+            error_log('Using $_POST: ' . json_encode($_POST));
             return $_POST;
         }
 
+        error_log('No body parsed');
         return [];
     }
 
