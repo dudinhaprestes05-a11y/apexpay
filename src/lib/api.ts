@@ -20,11 +20,14 @@ class ApiClient {
     this.token = localStorage.getItem('auth_token');
   }
 
+  reloadToken(): void {
+    this.loadToken();
+  }
+
   setToken(token: string | null): void {
     this.token = token;
     if (token) {
       localStorage.setItem('auth_token', token);
-      alert(`TOKEN SAVED! Length: ${token.length}`);
     } else {
       localStorage.removeItem('auth_token');
     }
@@ -40,6 +43,10 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
+    if (!this.token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
+      this.reloadToken();
+    }
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -47,9 +54,6 @@ class ApiClient {
 
     if (this.token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
       headers['Authorization'] = `Bearer ${this.token}`;
-      alert(`REQUEST ${endpoint}: Token added! Len=${this.token.length}`);
-    } else if (!endpoint.includes('/auth/')) {
-      alert(`REQUEST ${endpoint}: NO TOKEN! this.token=${this.token ? 'EXISTS' : 'NULL'}`);
     }
 
     try {
