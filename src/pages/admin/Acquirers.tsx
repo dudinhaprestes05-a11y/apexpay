@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { adminService } from '../../services/admin.service';
 import { PaymentAcquirer, Environment } from '../../types';
 import { Card, CardHeader } from '../../components/ui/Card';
 import { Modal } from '../../components/ui/Modal';

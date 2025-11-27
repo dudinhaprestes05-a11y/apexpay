@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 import {
   SellerFees,
   PaymentAcquirer,

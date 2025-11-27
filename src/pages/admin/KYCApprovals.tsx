@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
+import { adminService } from '../../services/admin.service';
 import { User, KYCDocument, UserDetails } from '../../types';
 import { KYCDocumentService } from '../../services/kyc-document.service';
 import { Card, CardHeader } from '../../components/ui/Card';

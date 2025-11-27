@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { adminService } from '../../services/admin.service';
 import { Card, CardHeader } from '../../components/ui/Card';
-import { DashboardStats, Transaction } from '../../types';
+import { Transaction } from '../../types';
 import { formatCurrency, formatRelativeTime } from '../../utils/format';
 import { StatusBadge } from '../../components/StatusBadge';
 import { TrendingUp, Users, CreditCard, AlertCircle, DollarSign, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import { Link } from '../../components/Router';
+
+interface DashboardStats {
+  totalTransactions: number;
+  totalVolume: number;
+  successRate: number;
+  activeUsers: number;
+  pendingKYC: number;
+}
 
 export function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -21,6 +29,7 @@ export function AdminDashboard() {
   const [adminFees, setAdminFees] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -28,33 +37,23 @@ export function AdminDashboard() {
 
   async function loadDashboardData() {
     try {
-      const [transactionsResult, usersResult, depositsResult] = await Promise.all([
-        supabase
-          .from('transactions')
-          .select('*')
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('users')
-          .select('id, kyc_status, role'),
-        supabase
-          .from('deposits')
-          .select('*')
-          .order('created_at', { ascending: false }),
-      ]);
+      setError(null);
+      const dashboardData = await adminService.getDashboard();
 
-      const transactions = transactionsResult.data || [];
-      const users = usersResult.data || [];
-      const deposits = depositsResult.data || [];
+      setStats({
+        totalTransactions: dashboardData.total_transactions,
+        totalVolume: dashboardData.total_volume,
+        successRate: (dashboardData.total_transactions > 0
+          ? ((dashboardData.total_transactions - dashboardData.pending_kyc) / dashboardData.total_transactions) * 100
+          : 0),
+        activeUsers: dashboardData.active_sellers,
+        pendingKYC: dashboardData.pending_kyc,
+      });
+
+      const transactions = await adminService.listTransactions();
+      setRecentTransactions(transactions.slice(0, 10));
 
       const paidTransactions = transactions.filter(t => t.status === 'paid');
-      const totalVolume = paidTransactions.reduce(
-        (sum, t) => sum + parseFloat(t.amount.toString()),
-        0
-      );
-
-      const paidCount = paidTransactions.length;
-      const successRate = transactions.length > 0 ? (paidCount / transactions.length) * 100 : 0;
-
       const cashInTxs = paidTransactions.filter(t => t.type === 'cash_in');
       const cashOutTxs = paidTransactions.filter(t => t.type === 'cash_out');
 
@@ -68,32 +67,14 @@ export function AdminDashboard() {
         volume: cashOutTxs.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0),
       });
 
-      const paidDeposits = deposits.filter(d => d.status === 'paid');
-      const pendingDeposits = deposits.filter(d => d.status === 'pending');
-
-      setDepositStats({
-        count: paidDeposits.length,
-        volume: paidDeposits.reduce((sum, d) => sum + parseFloat(d.amount.toString()), 0),
-        pending: pendingDeposits.length,
-      });
-
       const totalAdminFees = paidTransactions.reduce(
         (sum, t) => sum + parseFloat((t.admin_fee_amount || 0).toString()),
         0
       );
       setAdminFees(totalAdminFees);
-
-      setStats({
-        totalTransactions: transactions.length,
-        totalVolume,
-        successRate,
-        activeUsers: users.filter(u => u.role === 'seller' && u.kyc_status === 'approved').length,
-        pendingKYC: users.filter(u => u.kyc_status === 'pending').length,
-      });
-
-      setRecentTransactions(transactions.slice(0, 10));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading dashboard:', error);
+      setError(error.message || 'Erro ao carregar dashboard');
     } finally {
       setLoading(false);
     }
@@ -103,6 +84,24 @@ export function AdminDashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-500">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-900 font-medium">Erro ao carregar dashboard</p>
+          <p className="text-gray-600 text-sm mt-2">{error}</p>
+          <button
+            onClick={loadDashboardData}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Tentar novamente
+          </button>
+        </div>
       </div>
     );
   }

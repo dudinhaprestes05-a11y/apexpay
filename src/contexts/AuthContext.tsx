@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
+import { authService, RegisterData } from '../services/auth.service';
 import { User } from '../types';
 
 interface AuthContextType {
@@ -19,121 +19,83 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     checkUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        (() => {
-          if (session) {
-            loadUserData(session.user.id);
-          } else {
-            setUser(null);
-          }
-        })();
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
   }, []);
 
   async function checkUser() {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await loadUserData(session.user.id);
+      const token = authService.getStoredToken();
+
+      if (!token) {
+        setLoading(false);
+        return;
       }
+
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
     } catch (error) {
       console.error('Error checking user:', error);
+      authService.logout();
+      setUser(null);
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadUserData(userId: string) {
-    try {
-      console.log('Loading user data for ID:', userId);
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error from Supabase:', error);
-        throw error;
-      }
-
-      if (!data) {
-        console.error('User not found in users table');
-        throw new Error('Usuário não encontrado na base de dados');
-      }
-
-      console.log('User data loaded successfully:', data.email);
-      setUser(data);
-    } catch (error) {
-      console.error('Error loading user data:', error);
-      setUser(null);
-      throw error;
-    }
-  }
-
   async function signIn(email: string, password: string) {
-    console.log('Attempting sign in for:', email);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      console.log('Attempting sign in for:', email);
+      const response = await authService.login(email, password);
 
-    if (error) {
-      console.error('Auth error:', error);
+      authService.storeRefreshToken(response.refresh_token);
+      setUser(response.user);
+
+      console.log('Login successful');
+    } catch (error) {
+      console.error('Login error:', error);
       throw error;
     }
-
-    if (!data.user) {
-      console.error('No user returned from auth');
-      throw new Error('Falha na autenticação');
-    }
-
-    console.log('Auth successful, loading user data...');
-    await loadUserData(data.user.id);
   }
 
   async function signUp(email: string, password: string, name: string) {
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      const registerData: RegisterData = {
+        email,
+        password,
+        name,
+        document_cpf_cnpj: '',
+      };
 
-    if (authError) throw authError;
-    if (!authData.user) throw new Error('Failed to create user');
+      const response = await authService.register(registerData);
 
-    const { error: userError } = await supabase
-      .from('users')
-      .insert([
-        {
-          id: authData.user.id,
-          email,
-          name,
-          role: 'seller',
-          kyc_status: 'pending',
-        },
-      ]);
+      authService.storeRefreshToken(response.refresh_token);
+      setUser(response.user);
 
-    if (userError) throw userError;
-
-    await loadUserData(authData.user.id);
+      console.log('Registration successful');
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
   }
 
   async function signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    setUser(null);
+    try {
+      authService.logout();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
   }
 
   async function refreshUser() {
-    if (user) {
-      await loadUserData(user.id);
+    try {
+      if (!user) return;
+
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      throw error;
     }
   }
 

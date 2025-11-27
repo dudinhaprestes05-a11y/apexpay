@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { adminService } from '../services/admin.service';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';

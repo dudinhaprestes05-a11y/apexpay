@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { walletService } from '../../services/wallet.service';
 import { useAuth } from '../../contexts/AuthContext';
 import { DepositService, Deposit } from '../../services/deposit.service';
 import { Card, CardHeader } from '../../components/ui/Card';
