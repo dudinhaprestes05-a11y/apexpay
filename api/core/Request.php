@@ -44,27 +44,18 @@ class Request {
     }
 
     private function parseBody() {
-        error_log('parseBody - All headers keys: ' . json_encode(array_keys($this->headers)));
-
         $contentType = $this->header('CONTENT-TYPE') ?? '';
-
-        error_log('parseBody - Content-Type from header(): ' . $contentType);
-        error_log('parseBody - Direct CONTENT-TYPE: ' . ($this->headers['CONTENT-TYPE'] ?? 'NOT SET'));
 
         if (strpos($contentType, 'application/json') !== false) {
             $json = file_get_contents('php://input');
-            error_log('parseBody - Raw JSON input: ' . $json);
             $decoded = json_decode($json, true) ?? [];
-            error_log('parseBody - Decoded JSON: ' . json_encode($decoded));
             return $decoded;
         }
 
         if ($this->method === 'POST' || $this->method === 'PUT' || $this->method === 'PATCH') {
-            error_log('parseBody - Using $_POST: ' . json_encode($_POST));
             return $_POST;
         }
 
-        error_log('parseBody - No body parsed');
         return [];
     }
 

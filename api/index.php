@@ -48,6 +48,8 @@ $request = new Request();
 $response = new Response();
 $router = new Router();
 
+error_log('Request: ' . $request->method() . ' ' . $request->uri());
+
 $corsMiddleware = new CorsMiddleware();
 $corsMiddleware->handle($request, $response);
 
