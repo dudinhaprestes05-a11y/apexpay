@@ -1,101 +1,80 @@
 # Apex Payment Gateway
 
-Sistema completo de gateway de pagamentos com painéis Admin e Seller, integração PodPay e multi-adquirentes.
+Gateway de pagamentos com integração PodPay, painéis Admin e Seller.
 
-## 🚀 Deploy Rápido
+## Estrutura do Projeto
 
-### Opção 1: Script Automático
-
-```bash
-./deploy.sh
+```
+/
+├── src/              # Frontend React + TypeScript
+├── httpdocs/         # Raiz pública (gerado pelo build)
+│   ├── index.html    # SPA compilado
+│   ├── assets/       # CSS/JS compilados
+│   └── api/          # Backend PHP
+└── deploy.sh         # Script de deploy
 ```
 
-Isso vai:
-1. ✅ Fazer build do frontend
-2. ✅ Criar estrutura unificada em `public_html/`
-3. ✅ Configurar roteamento (.htaccess)
-4. ✅ Preparar pastas de storage
-
-### Opção 2: Manual
+## Desenvolvimento Local
 
 ```bash
-npm run build
-mkdir -p public_html/api
-cp -r dist/* public_html/
-cp -r backend/public/* public_html/api/
-cp -r backend/{core,controllers,models,services,middleware,config} public_html/api/
-cp backend/.env public_html/api/
-```
-
-## 📋 Próximos Passos
-
-Após rodar o deploy:
-
-1. **Configure o banco** - Edite `public_html/api/.env`
-2. **Faça upload** - Envie `public_html/` para seu servidor
-3. **Execute migrações** - `php api/migrate.php`
-4. **Crie admin** - `php api/create-admin.php admin@email.com senha`
-
-## 📖 Documentação
-
-- **[START_HERE.md](START_HERE.md)** - 🎯 Comece aqui! Deploy em 5 minutos
-- **[PLESK_FIX.md](PLESK_FIX.md)** - 🔧 Correções para servidor Plesk
-- **[DEPLOY.md](DEPLOY.md)** - Guia completo de deploy em produção
-- **[LEIA-ME-PRIMEIRO.md](LEIA-ME-PRIMEIRO.md)** - Setup local para desenvolvimento
-- **[PHP_BACKEND_SETUP.md](PHP_BACKEND_SETUP.md)** - Configuração do backend PHP
-- **[MIGRATION_COMPLETE.md](MIGRATION_COMPLETE.md)** - Detalhes da arquitetura
-
-## 🌐 Estrutura de URLs
-
-Após deploy:
-
-- `/` - Login
-- `/admin` - Dashboard Admin
-- `/seller` - Dashboard Seller
-- `/api/*` - API REST
-
-## 🛠️ Desenvolvimento Local
-
-```bash
-# Backend
-cd backend/public
-php -S localhost:8000
-
-# Frontend (outro terminal)
+# Instalar dependências
 npm install
+
+# Rodar frontend
 npm run dev
+
+# Backend (outro terminal)
+cd httpdocs/api
+php -S localhost:8000 -t .
 ```
 
 Acesse: http://localhost:5173
 
-## 📦 Tecnologias
+## Deploy
 
-**Frontend:**
-- React + TypeScript
-- Vite
-- Tailwind CSS
-- Lucide Icons
+### No Servidor
 
-**Backend:**
-- PHP 8.0+
-- MySQL 5.7+
-- JWT Authentication
-- RESTful API
+```bash
+# 1. Instalar Node.js (se necessário)
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt install -y nodejs
 
-## 🔒 Segurança
+# 2. Fazer deploy
+./deploy.sh
+```
 
-Em produção, configure:
-- SSL/HTTPS
-- JWT_SECRET forte
-- APP_DEBUG=false
-- Firewall
-- Backups automáticos
+### Configuração Backend
 
-## 📞 Suporte
+Edite `httpdocs/api/.env`:
 
-Consulte os arquivos de documentação em `/` ou entre em contato com o time de desenvolvimento.
+```env
+DB_HOST=localhost
+DB_NAME=apex
+DB_USER=apex
+DB_PASS=sua_senha
 
----
+APP_URL=https://apexpay.duckdns.org
+CORS_ALLOWED_ORIGINS=https://apexpay.duckdns.org
 
-**Versão:** 1.0.0
-**Última atualização:** 2025-11-27
+JWT_SECRET=gerar_com_openssl_rand_base64_32
+```
+
+### Migração e Admin
+
+```bash
+cd httpdocs/api
+php migrate.php
+php create-admin.php admin@email.com senha123
+```
+
+## Tecnologias
+
+Frontend: React 18 + TypeScript + Vite + Tailwind CSS
+Backend: PHP 8.0+ + MySQL 5.7+ + JWT
+
+## URLs
+
+- `/` - Login
+- `/admin/*` - Dashboard Admin
+- `/seller/*` - Dashboard Seller
+- `/api/*` - API REST
