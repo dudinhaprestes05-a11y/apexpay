@@ -17,15 +17,20 @@ export interface RegisterData {
 
 class AuthService {
   async login(email: string, password: string): Promise<LoginResponse> {
+    console.log('[AUTH] Starting login for:', email);
     const response = await api.post<LoginResponse>('/auth/login', {
       email,
       password,
     });
 
+    console.log('[AUTH] Login response:', { success: response.success, hasData: !!response.data });
+
     if (response.success && response.data) {
+      console.log('[AUTH] Calling api.setToken with token length:', response.data.token.length);
       api.setToken(response.data.token);
       localStorage.setItem('refresh_token', response.data.refresh_token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      console.log('[AUTH] Login complete, token saved');
       return response.data;
     }
 
