@@ -20,12 +20,8 @@ class ApiClient {
 
   setToken(token: string | null): void {
     if (token) {
-      console.log('[API] Setting token in localStorage, length:', token.length);
       localStorage.setItem('auth_token', token);
-      const verify = localStorage.getItem('auth_token');
-      console.log('[API] Verify token saved:', verify?.length === token.length ? 'SUCCESS' : 'FAILED');
     } else {
-      console.log('[API] Removing token from localStorage');
       localStorage.removeItem('auth_token');
     }
   }
@@ -35,26 +31,18 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
     const token = this.getToken();
 
-    console.log(`[API] Request to ${endpoint}:`, {
-      hasToken: !!token,
-      tokenLength: token?.length,
-      tokenPreview: token?.substring(0, 30),
-      willAddAuth: token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')
-    });
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
 
     if (token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('[API] Authorization header added');
-    } else {
-      console.log('[API] NO Authorization header - token:', !!token, 'endpoint:', endpoint);
+    }
+
+    if (options.headers) {
+      Object.assign(headers, options.headers);
     }
 
     try {

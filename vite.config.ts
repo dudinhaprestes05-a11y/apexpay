@@ -9,7 +9,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    minify: false,
+    minify: 'esbuild',
     rollupOptions: {
       input: {
         main: './index.html'
