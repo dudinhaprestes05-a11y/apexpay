@@ -88,9 +88,7 @@ try {
             SET password_hash = ?,
                 name = ?,
                 role = 'admin',
-                kyc_status = 'approved',
-                is_active = TRUE,
-                updated_at = NOW()
+                kyc_status = 'approved'
             WHERE email = ?
         ");
 
@@ -117,8 +115,8 @@ try {
         $passwordHash = password_hash($userPassword, PASSWORD_BCRYPT, ['cost' => 12]);
 
         $stmt = $pdo->prepare("
-            INSERT INTO users (id, email, password_hash, name, role, kyc_status, is_active)
-            VALUES (?, ?, ?, ?, 'admin', 'approved', TRUE)
+            INSERT INTO users (id, email, password_hash, name, role, kyc_status)
+            VALUES (?, ?, ?, ?, 'admin', 'approved')
         ");
 
         $stmt->execute([$id, $email, $passwordHash, $name]);
