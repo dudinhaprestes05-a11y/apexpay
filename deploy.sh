@@ -22,26 +22,25 @@ fi
 echo "📦 Instalando dependências..."
 npm install --production=false
 
-# 2. Build do frontend
+# 2. Remover apenas assets compilados (mantém index.html fonte)
+echo ""
+echo "🗑️  Removendo assets antigos..."
+rm -rf "$PROJECT_ROOT/assets"
+
+# 3. Build do frontend
 echo ""
 echo "🔨 Compilando frontend..."
 npm run build
 
-# 3. Verificar se o build foi criado
+# 4. Verificar se o build foi criado
 if [ ! -d "$PROJECT_ROOT/dist" ]; then
     echo "❌ Erro: Build falhou - pasta dist/ não encontrada"
     exit 1
 fi
 
-# 4. Remover arquivos antigos da raiz
-echo ""
-echo "🗑️  Removendo arquivos antigos..."
-rm -f "$PROJECT_ROOT/index.html"
-rm -rf "$PROJECT_ROOT/assets"
-
 # 5. Copiar novos arquivos para raiz
 echo "📋 Copiando arquivos compilados..."
-cp "$PROJECT_ROOT/dist/index.html" "$PROJECT_ROOT/"
+cp -f "$PROJECT_ROOT/dist/index.html" "$PROJECT_ROOT/"
 cp -r "$PROJECT_ROOT/dist/assets" "$PROJECT_ROOT/"
 
 # 6. Ajustar permissões (se executado como root)
