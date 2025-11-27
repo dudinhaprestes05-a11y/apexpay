@@ -21,14 +21,12 @@ class ApiClient {
   }
 
   setToken(token: string | null): void {
-    console.log('setToken called with:', token ? `${token.substring(0, 20)}...` : 'null');
     this.token = token;
     if (token) {
       localStorage.setItem('auth_token', token);
-      console.log('Token saved to localStorage');
+      alert(`TOKEN SAVED! Length: ${token.length}`);
     } else {
       localStorage.removeItem('auth_token');
-      console.log('Token removed from localStorage');
     }
   }
 
@@ -47,21 +45,11 @@ class ApiClient {
       ...options.headers,
     };
 
-    console.log(`API Request to ${endpoint}:`, {
-      hasToken: !!this.token,
-      tokenLength: this.token?.length,
-      endpoint
-    });
-
     if (this.token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
       headers['Authorization'] = `Bearer ${this.token}`;
-      console.log('Added Authorization header');
-    } else {
-      console.log('No Authorization header added:', {
-        hasToken: !!this.token,
-        isLoginEndpoint: endpoint.includes('/auth/login'),
-        isRegisterEndpoint: endpoint.includes('/auth/register')
-      });
+      alert(`REQUEST ${endpoint}: Token added! Len=${this.token.length}`);
+    } else if (!endpoint.includes('/auth/')) {
+      alert(`REQUEST ${endpoint}: NO TOKEN! this.token=${this.token ? 'EXISTS' : 'NULL'}`);
     }
 
     try {

@@ -60,6 +60,7 @@ function AppContent() {
 }
 
 function App() {
+  // v2.0 - Enhanced token handling
   return (
     <AuthProvider>
       <RouterProvider>
