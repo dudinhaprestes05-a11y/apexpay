@@ -3,8 +3,6 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . '/core/Database.php';
 require_once __DIR__ . '/core/Router.php';
 require_once __DIR__ . '/core/Request.php';
@@ -49,6 +47,8 @@ $response = new Response();
 $router = new Router();
 
 error_log('Request: ' . $request->method() . ' ' . $request->uri());
+
+$response->header('Content-Type', 'application/json; charset=utf-8');
 
 $corsMiddleware = new CorsMiddleware();
 $corsMiddleware->handle($request, $response);

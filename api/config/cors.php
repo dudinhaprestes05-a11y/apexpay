@@ -6,5 +6,5 @@ return [
     'allowed_headers' => explode(',', getenv('CORS_ALLOWED_HEADERS') ?: 'Content-Type,Authorization,X-Requested-With'),
     'exposed_headers' => ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
     'max_age' => 86400,
-    'credentials' => true
+    'credentials' => false
 ];
