@@ -5,16 +5,16 @@ ini_set('display_errors', 0);
 
 header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../core/Database.php';
-require_once __DIR__ . '/../core/Router.php';
-require_once __DIR__ . '/../core/Request.php';
-require_once __DIR__ . '/../core/Response.php';
-require_once __DIR__ . '/../core/Auth.php';
-require_once __DIR__ . '/../core/Validator.php';
-require_once __DIR__ . '/../middleware/CorsMiddleware.php';
-require_once __DIR__ . '/../middleware/AuthMiddleware.php';
-require_once __DIR__ . '/../middleware/AdminMiddleware.php';
-require_once __DIR__ . '/../middleware/RateLimitMiddleware.php';
+require_once __DIR__ . '/core/Database.php';
+require_once __DIR__ . '/core/Router.php';
+require_once __DIR__ . '/core/Request.php';
+require_once __DIR__ . '/core/Response.php';
+require_once __DIR__ . '/core/Auth.php';
+require_once __DIR__ . '/core/Validator.php';
+require_once __DIR__ . '/middleware/CorsMiddleware.php';
+require_once __DIR__ . '/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/middleware/AdminMiddleware.php';
+require_once __DIR__ . '/middleware/RateLimitMiddleware.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -51,6 +51,6 @@ $router = new Router();
 $corsMiddleware = new CorsMiddleware();
 $corsMiddleware->handle($request, $response);
 
-require_once __DIR__ . '/../config/routes.php';
+require_once __DIR__ . '/config/routes.php';
 
 $router->dispatch($request, $response);
