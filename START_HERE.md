@@ -1,84 +1,48 @@
-# 🚀 START HERE - Payment Gateway Migration
+# 🎯 COMECE AQUI - Deploy em 5 Minutos
 
-## ✅ O Que Foi Feito
+## ✅ Estrutura Pronta!
 
-Migração **COMPLETA** de Supabase/PostgreSQL para **PHP puro + MySQL** para servidor Plesk.
+A pasta `public_html/` está **100% pronta** para fazer upload no seu servidor.
 
-### Status: 100% PRONTO PARA PRODUÇÃO
-
----
-
-## 📦 O Que Você Recebeu
-
-### 1. Backend PHP Completo (192KB, 33 arquivos)
-- ✅ Framework MVC próprio (sem dependências)
-- ✅ 30 arquivos PHP organizados
-- ✅ 25+ endpoints API REST
-- ✅ Sistema de autenticação JWT
-- ✅ Integração PodPay completa
-- ✅ Multi-acquirer com fallback
-- ✅ Sistema de webhooks
-- ✅ Sistema de KYC
-- ✅ Carteira digital
-- ✅ Cálculo de taxas
-
-### 2. Banco de Dados MySQL
-- ✅ Schema completo com 15+ tabelas
-- ✅ Triggers automáticos
-- ✅ Índices otimizados
-- ✅ Foreign keys e constraints
-
-### 3. Documentação Completa
-- ✅ 7 arquivos de documentação
-- ✅ Guias de instalação
-- ✅ Guia de migração frontend
-- ✅ Comandos úteis
-- ✅ Troubleshooting
+### Status: DEPLOY READY
 
 ---
 
-## 🎯 Próximos Passos (Ordem Recomendada)
+## 🚀 Passo a Passo Ultra-Rápido
 
-### Passo 1: Configurar Backend (30 min)
+### 1️⃣ Configure o Banco de Dados (2 min)
 
-```bash
-# 1. Criar banco MySQL no Plesk
-# Nome: payment_gateway
-
-# 2. Importar schema
-# Via phpMyAdmin: Import → backend/database/schema.sql
-
-# 3. Upload dos arquivos backend/
-# Para: /httpdocs/api/
-
-# 4. Configurar .env
-# Copiar backend/.env.example → backend/.env
-# Preencher credenciais do banco
-
-# 5. Configurar document root no Plesk
-# Document root: /httpdocs/api/public
-
-# 6. Testar API
-curl https://api.seudominio.com/api/auth/login
-```
-
-📖 **Guia detalhado:** `backend/README.md`
-
-### Passo 2: Criar Usuário Admin (5 min)
+No seu servidor MySQL:
 
 ```sql
-INSERT INTO users (id, email, password_hash, name, role, kyc_status)
-VALUES (
-  UUID(),
-  'admin@seudominio.com',
-  '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-  'Administrador',
-  'admin',
-  'approved'
-);
+CREATE DATABASE apex;
+CREATE USER 'apex'@'localhost' IDENTIFIED BY 'SuaSenha123';
+GRANT ALL PRIVILEGES ON apex.* TO 'apex'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
-**Senha padrão:** `password` (ALTERAR após primeiro login!)
+### 2️⃣ Edite as Configurações (1 min)
+
+Abra: `public_html/api/.env`
+
+Mude estas linhas:
+
+```env
+DB_NAME=apex
+DB_USER=apex
+DB_PASS=SuaSenha123              ← Sua senha do MySQL
+
+APP_URL=https://seudominio.com    ← Seu domínio
+APP_ENV=production
+APP_DEBUG=false
+
+JWT_SECRET=cole-resultado-do-comando-abaixo
+```
+
+**Gerar JWT_SECRET:**
+```bash
+openssl rand -base64 32
+```
 
 ### Passo 3: Configurar Adquirente PodPay (5 min)
 
