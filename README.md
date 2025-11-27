@@ -38,6 +38,8 @@ Após rodar o deploy:
 
 ## 📖 Documentação
 
+- **[START_HERE.md](START_HERE.md)** - 🎯 Comece aqui! Deploy em 5 minutos
+- **[PLESK_FIX.md](PLESK_FIX.md)** - 🔧 Correções para servidor Plesk
 - **[DEPLOY.md](DEPLOY.md)** - Guia completo de deploy em produção
 - **[LEIA-ME-PRIMEIRO.md](LEIA-ME-PRIMEIRO.md)** - Setup local para desenvolvimento
 - **[PHP_BACKEND_SETUP.md](PHP_BACKEND_SETUP.md)** - Configuração do backend PHP

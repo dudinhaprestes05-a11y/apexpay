@@ -64,12 +64,11 @@ Header set X-XSS-Protection "1; mode=block"
 Header set Referrer-Policy "strict-origin-when-cross-origin"
 
 # Disable directory listing
-Options -Indexes +FollowSymLinks
+Options -Indexes
 
 # Prevent access to sensitive files
 <FilesMatch "\.(env|log|sql|md)$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # API Routes
@@ -122,13 +121,12 @@ Options -Indexes
 
 # Prevent access to sensitive files
 <FilesMatch "\.(env|log|sql)$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 EOF
 
 # Proteger storage
-echo "Deny from all" > public_html/api/storage/.htaccess
+echo "Require all denied" > public_html/api/storage/.htaccess
 
 echo -e "${GREEN}✓ .htaccess criados${NC}"
 

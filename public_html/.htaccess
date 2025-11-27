@@ -7,22 +7,20 @@ Header set X-XSS-Protection "1; mode=block"
 Header set Referrer-Policy "strict-origin-when-cross-origin"
 
 # Disable directory listing
-Options -Indexes +FollowSymLinks
+Options -Indexes
 
 # Prevent access to sensitive files
 <FilesMatch "\.(env|log|sql|md)$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
-# API Routes - Direcionar /api/* para /api/index.php
+# API Routes
 RewriteCond %{REQUEST_URI} ^/api/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^api/(.*)$ api/index.php [QSA,L]
 
-# Frontend React SPA - Todas as outras rotas vão para index.html
-# Exceto arquivos e diretórios que existem (assets, etc)
+# Frontend React SPA
 RewriteCond %{REQUEST_URI} !^/api/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
