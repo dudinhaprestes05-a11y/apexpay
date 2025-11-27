@@ -29,12 +29,16 @@ class AuthController {
 
         unset($user['password_hash']);
 
-        $response->success([
+        $responseData = [
             'user' => $user,
             'token' => $token,
             'refresh_token' => $refreshToken,
             'expires_in' => 86400
-        ], 'Login realizado com sucesso')->send();
+        ];
+
+        error_log('Login successful for user: ' . $user['email'] . ', token length: ' . strlen($token));
+
+        $response->success($responseData, 'Login realizado com sucesso')->send();
     }
 
     public function register(Request $request, Response $response) {

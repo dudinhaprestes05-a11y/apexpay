@@ -21,11 +21,14 @@ class ApiClient {
   }
 
   setToken(token: string | null): void {
+    console.log('setToken called with:', token ? `${token.substring(0, 20)}...` : 'null');
     this.token = token;
     if (token) {
       localStorage.setItem('auth_token', token);
+      console.log('Token saved to localStorage');
     } else {
       localStorage.removeItem('auth_token');
+      console.log('Token removed from localStorage');
     }
   }
 

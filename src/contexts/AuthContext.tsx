@@ -45,11 +45,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Attempting sign in for:', email);
       const response = await authService.login(email, password);
+      console.log('Login response received:', { hasToken: !!response.token, hasUser: !!response.user });
 
       authService.storeRefreshToken(response.refresh_token);
       setUser(response.user);
 
-      console.log('Login successful');
+      console.log('Login successful, user set:', response.user.email);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
