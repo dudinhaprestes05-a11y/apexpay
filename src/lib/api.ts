@@ -44,8 +44,21 @@ class ApiClient {
       ...options.headers,
     };
 
+    console.log(`API Request to ${endpoint}:`, {
+      hasToken: !!this.token,
+      tokenLength: this.token?.length,
+      endpoint
+    });
+
     if (this.token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
       headers['Authorization'] = `Bearer ${this.token}`;
+      console.log('Added Authorization header');
+    } else {
+      console.log('No Authorization header added:', {
+        hasToken: !!this.token,
+        isLoginEndpoint: endpoint.includes('/auth/login'),
+        isRegisterEndpoint: endpoint.includes('/auth/register')
+      });
     }
 
     try {
