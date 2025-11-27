@@ -6,12 +6,16 @@ require_once __DIR__ . '/../core/Validator.php';
 
 class AuthController {
     public function login(Request $request, Response $response) {
+        error_log('Login attempt - Input: ' . json_encode($request->input()));
+        error_log('Login attempt - All: ' . json_encode($request->all()));
+
         $validator = new Validator($request->input(), [
             'email' => 'required|email',
             'password' => 'required|min:6'
         ]);
 
         if (!$validator->validate()) {
+            error_log('Validation failed: ' . json_encode($validator->errors()));
             return $response->validationError($validator->errors())->send();
         }
 
