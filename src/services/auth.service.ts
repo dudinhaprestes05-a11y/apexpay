@@ -24,6 +24,8 @@ class AuthService {
 
     if (response.success && response.data) {
       api.setToken(response.data.token);
+      localStorage.setItem('refresh_token', response.data.refresh_token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data;
     }
 
@@ -35,6 +37,8 @@ class AuthService {
 
     if (response.success && response.data) {
       api.setToken(response.data.token);
+      localStorage.setItem('refresh_token', response.data.refresh_token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data;
     }
 
@@ -45,6 +49,7 @@ class AuthService {
     const response = await api.get<User>('/auth/me');
 
     if (response.success && response.data) {
+      localStorage.setItem('user', JSON.stringify(response.data));
       return response.data;
     }
 
@@ -59,6 +64,7 @@ class AuthService {
 
     if (response.success && response.data) {
       api.setToken(response.data.token);
+      localStorage.setItem('refresh_token', response.data.refresh_token);
       return response.data;
     }
 
@@ -67,20 +73,27 @@ class AuthService {
 
   logout(): void {
     api.setToken(null);
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
   }
 
   getStoredToken(): string | null {
-    return api.getToken();
+    return localStorage.getItem('auth_token');
   }
 
   getStoredRefreshToken(): string | null {
     return localStorage.getItem('refresh_token');
   }
 
-  storeRefreshToken(token: string): void {
-    localStorage.setItem('refresh_token', token);
+  getStoredUser(): User | null {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      return null;
+    }
   }
 }
 

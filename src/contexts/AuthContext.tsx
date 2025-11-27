@@ -18,39 +18,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkUser();
+    initAuth();
   }, []);
 
-  async function checkUser() {
+  async function initAuth() {
     try {
       const token = authService.getStoredToken();
+      const storedUser = authService.getStoredUser();
 
       if (!token) {
         setLoading(false);
         return;
       }
 
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
+      if (storedUser) {
+        setUser(storedUser);
+        setLoading(false);
+
+        try {
+          const freshUser = await authService.getCurrentUser();
+          setUser(freshUser);
+        } catch (error) {
+          console.error('Error refreshing user:', error);
+        }
+      } else {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+        setLoading(false);
+      }
     } catch (error) {
-      console.error('Error checking user:', error);
+      console.error('Error initializing auth:', error);
       authService.logout();
       setUser(null);
-    } finally {
       setLoading(false);
     }
   }
 
   async function signIn(email: string, password: string) {
     try {
-      console.log('Attempting sign in for:', email);
       const response = await authService.login(email, password);
-      console.log('Login response received:', { hasToken: !!response.token, hasUser: !!response.user });
-
-      authService.storeRefreshToken(response.refresh_token);
       setUser(response.user);
-
-      console.log('Login successful, user set:', response.user.email);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -67,11 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
 
       const response = await authService.register(registerData);
-
-      authService.storeRefreshToken(response.refresh_token);
       setUser(response.user);
-
-      console.log('Registration successful');
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

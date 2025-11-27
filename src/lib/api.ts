@@ -9,32 +9,21 @@ export interface ApiResponse<T = any> {
 
 class ApiClient {
   private baseURL: string;
-  private token: string | null = null;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
-    this.loadToken();
   }
 
-  private loadToken(): void {
-    this.token = localStorage.getItem('auth_token');
-  }
-
-  reloadToken(): void {
-    this.loadToken();
+  private getToken(): string | null {
+    return localStorage.getItem('auth_token');
   }
 
   setToken(token: string | null): void {
-    this.token = token;
     if (token) {
       localStorage.setItem('auth_token', token);
     } else {
       localStorage.removeItem('auth_token');
     }
-  }
-
-  getToken(): string | null {
-    return this.token;
   }
 
   private async request<T = any>(
@@ -43,17 +32,14 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
-    if (!this.token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
-      this.reloadToken();
-    }
-
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
 
-    if (this.token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.getToken();
+    if (token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     try {
@@ -113,8 +99,9 @@ class ApiClient {
     const url = `${this.baseURL}${endpoint}`;
 
     const headers: HeadersInit = {};
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     try {
