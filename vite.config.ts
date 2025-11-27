@@ -7,12 +7,17 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   build: {
-    outDir: 'dist',
-    emptyOutDir: true,
+    outDir: '.',
+    emptyOutDir: false,
     minify: 'esbuild',
     rollupOptions: {
       input: {
         main: './index.html'
+      },
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     }
   },
